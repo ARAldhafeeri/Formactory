@@ -18,7 +18,7 @@ Example (React Hook Form, Zod)
 
 ## Comparison
 
-[table.png](./table.png)
+![table.png](./table.png)
 
 ## Getting Started
 
