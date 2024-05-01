@@ -41,11 +41,13 @@ import React from 'react';
 
 
 function App(props) {
+
   const [data, setData] = React.useState({
     username: "",
     email: "",
     password: "",
   });
+
   const userForm = {
     form: {
       props : {
@@ -109,18 +111,13 @@ function App(props) {
         },
         {
           name: "submit",
-          type: "input",
+          type: "custom",
+          component: "button",
           props: {
             className: "btn btn-primary",
             type: "submit",
           },
-          label: {
-            text: "Submit",
-            props: {
-              className: "form-label",
-              type:"submit",
-            }
-          }
+          children: <span>submit</span>
         }
     ]
   }
@@ -152,6 +149,7 @@ const schema = z.object({
   email: z.string().email({message : "email required!"}),
   password: z.string().min(6, {message : "password required!"}),
 });
+
 
 function App(props) {
   
@@ -256,18 +254,13 @@ function App(props) {
         },
         {
           name: "submit",
-          type: "input",
+          type: "custom",
+          component: "button",
           props: {
             className: "btn btn-primary",
             type: "submit",
           },
-          label: {
-            text: "Submit",
-            props: {
-              className: "form-label",
-              type:"submit",
-            }
-          }
+          children: <span>submit</span>
         }
     ]
   }
@@ -275,9 +268,6 @@ function App(props) {
     <Formactory {...userForm} />
   );
 }
-
-
-export default App;
 ```
 
 ### Contract Reference
@@ -299,7 +289,7 @@ export default App;
 | props | object | Field element props |
 | label | object | Label element |
 | error | object | optional Error element |
-| children | array | Child elements |
+| children | react node | Custom react elements |
 | component | react component | Custom component |
 
 
