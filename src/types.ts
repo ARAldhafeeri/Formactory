@@ -20,7 +20,7 @@ export interface FormItem {
     props : any;
   }
   props: any;
-  children?: FormItem[]; // Or a more specific type
+  children?: React.ReactNode; // Or a more specific type
   component?: React.FC<any>; 
   key: string;
 }

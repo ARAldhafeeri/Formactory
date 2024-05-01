@@ -4,44 +4,24 @@ import { FormFieldProps, FormItem } from './types'
 const renderField = (field: FormItem) => {
   switch (field.type) {
     case 'input':
-      return <input {...field.props} />;
+      return field.children ? <input {...field.props}> {field.children} </input> : <input {...field.props} />;
     case 'select':
       return <select {...field.props}>{field.children}</select>;
     case 'option':
-      return <option {...field.props}>{field.children}</option>;
+      return field.children ? <option {...field.props}> {field.children} </option> : <option {...field.props} />;
     case 'radio':
-      return <input type="radio" {...field.props} />;
+      return field.children ? <input type="radio" {...field.props}> {field.children} </input> : <input type="radio" {...field.props} />;
     case 'checkbox':
-      return <input type="checkbox" {...field.props} />;
+      return field.children ? <input type="checkbox" {...field.props}> {field.children} </input> : <input type="checkbox" {...field.props} />;
     case 'textarea':
-      return <textarea {...field.props} />;
+      return field.children ? <textarea {...field.props}> {field.children} </textarea> : <textarea {...field.props} />;
     case 'custom':
-      return <field.component {...field.props} />;
-
+      return field.children ? <field.component {...field.props}> {field.children} </field.component> : <field.component {...field.props} />;
     default:
       return null;
   }
 };
 
-const FieldChildren : React.FC<FormFieldProps> = ({ field, key }) => {
-  return (
-    <React.Fragment key={key}>
-    {
-      field.children && field.children.map((item, key) => (
-          <>
-          {item.label && (
-              <label key={key} {...item.label.props}>
-                {item.label.text} 
-                {item.error && <span key={key} {...item.error.props}>{item.error.text}</span>}
-              </label>
-            )}
-          {renderField(item)}
-          </>
-      ))
-    }  
-  </React.Fragment>  
-  )
-}
 
 export const FormField : React.FC<FormFieldProps> = ({field, key} ) => {
   return (
@@ -53,7 +33,6 @@ export const FormField : React.FC<FormFieldProps> = ({field, key} ) => {
           </label>
         )}
         {renderField(field)}
-        <FieldChildren field={field}  key={`children-${key}`} />
     </ React.Fragment>
   );
 };
