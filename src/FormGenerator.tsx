@@ -8,7 +8,7 @@ const Formactory : React.FC<FormConfig> = ({ form, schema }) => {
   const FormTags = form.customComponent ? form.customComponent : DefaultFormTags ;
   
   return (
-    <FormTags {...form.props}>
+    <FormTags {...(form.customComponent ? {...form.props} : {formProps : form.props})}>
       {schema.map((field, key) => (
           <FormField field={field} key={`${key}`} />
       ))}

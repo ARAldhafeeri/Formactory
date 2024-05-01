@@ -25,7 +25,7 @@ const renderField = (field: FormItem) => {
 
 const FieldChildren : React.FC<FormFieldProps> = ({ field, key }) => {
   return (
-    <div key={key}>
+    <React.Fragment key={key}>
     {
       field.children && field.children.map((item, key) => (
           <>
@@ -39,14 +39,13 @@ const FieldChildren : React.FC<FormFieldProps> = ({ field, key }) => {
           </>
       ))
     }  
-  </div>  
+  </React.Fragment>  
   )
 }
 
 export const FormField : React.FC<FormFieldProps> = ({field, key} ) => {
   return (
-    <div key={key}> {/* Wrapper for field, label, and error */}
-      <div>
+    <React.Fragment key={key}> {/* Wrapper for field, label, and error */}
         {field.label && (
           <label {...field.label.props}>
             {field.label.text}
@@ -54,17 +53,14 @@ export const FormField : React.FC<FormFieldProps> = ({field, key} ) => {
           </label>
         )}
         {renderField(field)}
-      </div>
-      <div>
         <FieldChildren field={field}  key={`children-${key}`} />
-      </div>
-    </ div>
+    </ React.Fragment>
   );
 };
 
-export const DefaultFormTags = ({children}) => {
+export const DefaultFormTags = ({children, formProps}) => {
   return (
-    <form>
+    <form {...formProps}>
       {...children}
     </form>
   );
