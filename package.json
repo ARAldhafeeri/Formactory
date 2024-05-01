@@ -1,6 +1,6 @@
 {
   "name": "formactory",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Formactory is a JavaScript/TypeScript library that revolutionizes form building. It replaces cumbersome hard-coded HTML with a declarative JSON schema, dramatically enhancing the maintainability of large, complex forms.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
