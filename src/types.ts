@@ -22,4 +22,10 @@ export interface FormItem {
   props: any;
   children?: FormItem[]; // Or a more specific type
   component?: React.FC<any>; 
+  key: string;
+}
+
+export interface FormFieldProps {
+  field: FormItem;
+  key: string;
 }
