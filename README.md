@@ -1,5 +1,6 @@
 # Introduction
 
+![Formactory](./formactory.png?width=400&height=400)
 Formactory is a ReactJS library that changes the way developers build forms for good reasons. It replaces cumbersome hard-coded HTML with a declarative JSON schema, dramatically enhancing the maintainability of large, complex forms.
 
 ## Key Features
