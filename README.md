@@ -286,7 +286,7 @@ function App(props) {
 
 | Property | Type | Description |
 |----------|------|-------------|
-| name | string | Field name |
+| name | string | Field name , caution : this is unique idenfier for field, not field name property |
 | type | string | Field type |
 | props | object | Field element props |
 | label | object | Label element |

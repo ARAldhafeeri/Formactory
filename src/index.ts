@@ -1,3 +1,3 @@
 import Formactory from "./FormGenerator";
-
-export { Formactory};
+import FormState from "./Events";
+export { Formactory, FormState};
