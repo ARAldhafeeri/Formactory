@@ -20,8 +20,8 @@ Example (React Hook Form, Zod)
 ## What is Formactory?
 An abstraction layer that simplifies form creation by using a JSON schema to define form structure and elements. Formactory then going to parse the schema and render the form elements accordingly. The library intergratable with existing React tools.
 
-## FormState 
-FormState is an easy way to handle dynamic forms. It allows you to change the form schema based on user interactions. For example, you can add or remove form fields based on any user interaction.
+## Dynamic forms  
+Formfactory already passes schema and data to useEffect, so you can use the schema to update the form based on user interaction. This is useful for dynamic forms that change based on user input. To create dynamic forms, all you have to do is set the schema of the form as a react state, and update the schema based on user interaction, conditions and so on. 
 
 
 ## Comparison
@@ -415,7 +415,6 @@ const userForm : FormConfig = {
 | error | object | optional Error element |
 | children | react node | Custom react elements |
 | component | react component | Custom component |
-| rules | object | Form state rules |
 
 
 
