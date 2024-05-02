@@ -285,7 +285,7 @@ This example will add a new field to the form when the user checks the checkbox.
 
 ```jsx
 import React from 'react'
-import { Formactory, FormState } from 'formactory';
+import { Formactory } from 'formactory';
 export default function ConditionalFormGeneration(props) {
 
   const [data, setData] = React.useState({
@@ -297,8 +297,9 @@ export default function ConditionalFormGeneration(props) {
   });
 
   const handleToggle = (e) => {
-    setData({...data, toggle: e.target.checked});
-    setSchema([
+    const value = e.target.checked;
+    setData({...data, toggle: value });
+    value?  setSchema([
       ...schema,
       {
         name: "password",
@@ -319,9 +320,9 @@ export default function ConditionalFormGeneration(props) {
           }
         }
       }
-    ])
+    ]) : setSchema((schema) => schema.filter((field) => field.key !== "password"));
   }
-  const [schema , setSchema] = React.useState<FormConfig["schema"]>([
+  const [schema , setSchema] = React.useState([
     {
       name: "username",
       key: "username", // Unique key for the field
@@ -373,7 +374,7 @@ export default function ConditionalFormGeneration(props) {
 ]);
 
  
-const userForm : FormConfig = {
+const userForm = {
     form: {
       props : {
         className: "form-group",
