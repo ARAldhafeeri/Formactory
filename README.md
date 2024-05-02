@@ -281,36 +281,13 @@ function App(props) {
 ```
 
 #### using FormState to handle form state for dynamic forms.
-This example will add a new field to the form when the user checks the checkbox. Behined the scene, formactory will create new subscription for the event and will update the form schema based on the event, action and condition , all of that is called a rule. 
-
-How FormState works:
-FormState is a formactory engine that simplifies the process of managing large dynamic forms by specifying reactivity as rules, triggers, actions: 
-
-- **Rules:** Declarative definitions in the schema. Each rule includes a condition and a reference to one one action.
-
-- **Triggers:** We can trigger an action that will update the form based on the user interaction via onCheck, onClick, onChange, etc.
-
-- **Subscription Engine:** The core component that manages the connections between triggers, rules, and actions. When a trigger event is published, the engine:
-    1. Evaluates any relevant rules against the form state.
-    2. Identifies actions associated with successful rules.
-    3. Dispatches actions to the Action Registry for execution.
-    4. unsubscribes the events when the component is unmounted.
-    5. unsubscribe events that do not match the condition.
-
-This way we achieved heighest level of reactivity and maintainability for the form. Also felexibility to add or remove fields based on user interaction.
-
-Here is the example using FormState to handle form state for dynamic forms. v2.0.0
+This example will add a new field to the form when the user checks the checkbox. The way to do this is to assign the form schema to a react state and update the schema when the user checks the checkbox. The same principle follows to more complex forms, or conditions: When user interaction changes, the form schema changes accordingly. The form mutates based on schema updates and data updates.
 
 ```jsx
 import React from 'react'
-import { FormConfig } from '../../src/types';
 import { Formactory, FormState } from 'formactory';
-
 export default function ConditionalFormGeneration(props) {
-  // init a state for the form
-  const emitter = new FormState();
 
-  // form data
   const [data, setData] = React.useState({
     username: "",
     email: "",
@@ -319,15 +296,31 @@ export default function ConditionalFormGeneration(props) {
     new: "",
   });
 
-  // handler for the toggle change
-  const onToggleChange = (e) => {
-    const value = e.target.checked;
-    value ? emitter.emit("toggle:active") : emitter.emit("toggle:inactive");
-    setData({...data, toggle: value});
-
+  const handleToggle = (e) => {
+    setData({...data, toggle: e.target.checked});
+    setSchema([
+      ...schema,
+      {
+        name: "password",
+        type: "input",
+        key: "password",
+        props: {
+          ["data-testid"]: "new-input",
+          className: "form-control",
+          placeholder: "Enter password",
+          type: "password",
+          onChange: (e) => setData({...data, password: e.target.value}),
+        },
+        label: {
+          text: "Password",
+          props: {
+            ["data-testid"]: "password-label",
+            className: "form-label",
+          }
+        }
+      }
+    ])
   }
-
-  // form schema state
   const [schema , setSchema] = React.useState<FormConfig["schema"]>([
     {
       name: "username",
@@ -374,12 +367,12 @@ export default function ConditionalFormGeneration(props) {
         props: {
           ["data-testid"]: "toggle-input",
           className: "form-control",
-          onChange: onToggleChange,
+          onChange:  handleToggle,
         },
       },
 ]);
 
-// user form configuration
+ 
 const userForm : FormConfig = {
     form: {
       props : {
@@ -391,44 +384,14 @@ const userForm : FormConfig = {
       },
     }, 
     schema : schema,
-    // form state rules, triggers name, actions
-    rules: [
-      {
-          on: "toggle:active",
-          "condition": data?.toggle === false,
-          action: () => {
-            setSchema((schema) => [...schema, 
-              {
-                name: "new",
-                type: "input",
-                key: "new",
-                props: {
-                  ["data-testid"]: "new-input",
-                  className: "form-control",
-                  placeholder: "Enter password",
-                  type: "text",
-                  onChange: (e) => setData({...data, new: e.target.value}),
-                }
-              }
-            ]);
-          },
-    
-      }, 
-      {
-          on: "toggle:inactive",
-          "condition": data?.toggle === true,
-          action: () => {
-            setSchema((schema) => schema.filter((item) => item.key !== "new"));
-          }
-      }
-    ],
 }
 
 
   return (
-    <Formactory {...userForm} emitter={emitter}/>
+    <Formactory {...userForm} />
   )
 }
+
 ```
 
 ### Contract Reference

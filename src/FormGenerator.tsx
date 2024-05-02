@@ -2,7 +2,7 @@ import React from 'react';
 import { FormConfig, FormItem } from './types';
 import {FormField,  DefaultFormTags } from './FormField';
 
-const Formactory : React.FC<FormConfig> = ({ form, schema , rules, emitter }) => {
+const Formactory : React.FC<FormConfig> = ({ form, schema  }) => {
   /**
    * FormTags is a custom component that will be used to render the form
    * If customComponent is not provided, DefaultFormTags will be used
@@ -17,25 +17,7 @@ const Formactory : React.FC<FormConfig> = ({ form, schema , rules, emitter }) =>
 
 
   React.useEffect(() => {
-    const subscriptions = []; // Store subscriptions to clean up later
-
-    rules?.forEach((rule) => {
-        const { on, condition,  action } = rule;  // Destructuring for cleaner code
-        // subscribe to the event based on the condition
-        // otherwise clean it up
-        if (condition){
-          emitter.on(on, action); 
-        }
-
-        subscriptions.push({ event: on, subscriptions }); // Store for removal
-    });
-
-    // Clean-up function:
-    return () => {
-        subscriptions.forEach(({ event, callback }) => {
-            emitter.off(event, callback);
-        });
-    };
+    
 }, [form?.props?.data, schema]); 
 
 

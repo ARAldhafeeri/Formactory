@@ -1,10 +1,8 @@
 import React from 'react'
 import { FormConfig } from '../../src/types';
-import Emitter from '../../src/Events'
 import { Formactory } from '../../src/index';
 
 export default function ConditionalFormGeneration(props) {
-  const emitter = new Emitter();
 
   const [data, setData] = React.useState({
     username: "",
@@ -14,13 +12,31 @@ export default function ConditionalFormGeneration(props) {
     new: "",
   });
 
-  const onToggleChange = (e) => {
-    const value = e.target.checked;
-    value ? emitter.emit("toggle:active") : emitter.emit("toggle:inactive");
-    setData({...data, toggle: value});
-
+  const handleToggle = (e) => {
+    setData({...data, toggle: e.target.checked});
+    setSchema([
+      ...schema,
+      {
+        name: "password",
+        type: "input",
+        key: "password",
+        props: {
+          ["data-testid"]: "new-input",
+          className: "form-control",
+          placeholder: "Enter password",
+          type: "password",
+          onChange: (e) => setData({...data, password: e.target.value}),
+        },
+        label: {
+          text: "Password",
+          props: {
+            ["data-testid"]: "password-label",
+            className: "form-label",
+          }
+        }
+      }
+    ])
   }
-
   const [schema , setSchema] = React.useState<FormConfig["schema"]>([
     {
       name: "username",
@@ -67,7 +83,7 @@ export default function ConditionalFormGeneration(props) {
         props: {
           ["data-testid"]: "toggle-input",
           className: "form-control",
-          onChange: onToggleChange,
+          onChange:  handleToggle,
         },
       },
 ]);
@@ -84,41 +100,10 @@ const userForm : FormConfig = {
       },
     }, 
     schema : schema,
-
-    rules: [
-      {
-          on: "toggle:active",
-          "condition": data?.toggle === false,
-          action: () => {
-            setSchema((schema) => [...schema, 
-              {
-                name: "new",
-                type: "input",
-                key: "new",
-                props: {
-                  ["data-testid"]: "new-input",
-                  className: "form-control",
-                  placeholder: "Enter password",
-                  type: "text",
-                  onChange: (e) => setData({...data, new: e.target.value}),
-                }
-              }
-            ]);
-          },
-    
-      }, 
-      {
-          on: "toggle:inactive",
-          "condition": data?.toggle === true,
-          action: () => {
-            setSchema((schema) => schema.filter((item) => item.key !== "new"));
-          }
-      }
-    ],
 }
 
 
   return (
-    <Formactory {...userForm} emitter={emitter}/>
+    <Formactory {...userForm} />
   )
 }

@@ -6,8 +6,6 @@ export interface FormConfig {
     props: any; 
   };
   schema: FormItem[];
-  rules?: Config;
-  emitter?: IEmitter;
 }
 
 export interface FormItem {
@@ -32,19 +30,3 @@ export interface FormFieldProps {
   field: FormItem;
   key: string;
 }
-
-export interface IEmitter {
-  on(event: string, callback: Function): void;
-  off(event: string, callback: Function): void;
-  emit(event: string, ...args: any[]): void;
-}
-
-
-
-type Rule = {
-  on: string;
-  condition: boolean;
-  action: Function;
-};
-
-export type Config = Rule[];
