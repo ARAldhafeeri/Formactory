@@ -17,6 +17,12 @@ Increased Maintainability: Manage even the most complex forms with ease. Schema 
 Improved Developer Experience: Focus on form logic, not HTML wrangling.
 Example (React Hook Form, Zod)
 
+## What is Formactory?
+An abstraction layer that simplifies form creation by using a JSON schema to define form structure and elements. Formactory then going to parse the schema and render the form elements accordingly. The library intergratable with existing React tools.
+
+## FormState 
+FormState is an easy way to handle dynamic forms. It allows you to change the form schema based on user interactions. For example, you can add or remove form fields based on any user interaction.
+
 
 ## Comparison
 
@@ -133,9 +139,10 @@ export default App;
 ```
 
 ### Advanced Usage
+1. using external libraries zod, react-hook-form.
+2. using FormState to handle form state for dynamic forms.
 
-- Using react-hook-form and zod for validation
-install the following packages
+#### using external libraries zod, react-hook-form.
 ```bash
 npm install react-hook-form @hookform/resolvers zod
 ```
@@ -270,6 +277,158 @@ function App(props) {
     <Formactory {...userForm} />
   );
 }
+
+```
+
+#### using FormState to handle form state for dynamic forms.
+This example will add a new field to the form when the user checks the checkbox. Behined the scene, formactory will create new subscription for the event and will update the form schema based on the event, action and condition , all of that is called a rule. 
+
+How FormState works:
+FormState is a formactory engine that simplifies the process of managing large dynamic forms by specifying reactivity as rules, triggers, actions: 
+
+- **Rules:** Declarative definitions in the schema. Each rule includes a condition and a reference to one one action.
+
+- **Triggers:** We can trigger an action that will update the form based on the user interaction via onCheck, onClick, onChange, etc.
+
+- **Subscription Engine:** The core component that manages the connections between triggers, rules, and actions. When a trigger event is published, the engine:
+    1. Evaluates any relevant rules against the form state.
+    2. Identifies actions associated with successful rules.
+    3. Dispatches actions to the Action Registry for execution.
+    4. unsubscribes the events when the component is unmounted.
+    5. unsubscribe events that do not match the condition.
+
+This way we achieved heighest level of reactivity and maintainability for the form. Also felexibility to add or remove fields based on user interaction.
+
+Here is the example using FormState to handle form state for dynamic forms. v2.0.0
+
+```jsx
+import React from 'react'
+import { FormConfig } from '../../src/types';
+import { Formactory, FormState } from 'formactory';
+
+export default function ConditionalFormGeneration(props) {
+  // init a state for the form
+  const emitter = new FormState();
+
+  // form data
+  const [data, setData] = React.useState({
+    username: "",
+    email: "",
+    password: "",
+    toggle: false,
+    new: "",
+  });
+
+  // handler for the toggle change
+  const onToggleChange = (e) => {
+    const value = e.target.checked;
+    value ? emitter.emit("toggle:active") : emitter.emit("toggle:inactive");
+    setData({...data, toggle: value});
+
+  }
+
+  // form schema state
+  const [schema , setSchema] = React.useState<FormConfig["schema"]>([
+    {
+      name: "username",
+      key: "username", // Unique key for the field
+      props: {
+        ["data-testid"]: "username-input",
+        className: "form-control",
+        placeholder: "Enter username",
+        type: "text",
+        onChange: (e) => setData({...data, username: e.target.value}),
+      },
+      type: "input",
+      label: {
+        text: "Username",
+        props: {
+          ["data-testid"]: "username-label", // Unique key for the label
+          className: "form-label",
+        }
+      },
+      }, 
+      {
+        name: "email",
+        type: "input",
+        key: "email",
+        props: {
+          ["data-testid"]: "email-input",
+          className: "form-control",
+          placeholder: "Enter email",
+          type: "email",
+          onChange: (e) => setData({...data, email: e.target.value}),
+        },
+        label: {
+          text: "Email",
+          props: {
+            ["data-testid"]: "email-label",
+            className: "form-label",
+          }
+        }
+      },
+      {
+        name: "toggle",
+        type: "checkbox",
+        key: "toggle",
+        props: {
+          ["data-testid"]: "toggle-input",
+          className: "form-control",
+          onChange: onToggleChange,
+        },
+      },
+]);
+
+// user form configuration
+const userForm : FormConfig = {
+    form: {
+      props : {
+        className: "form-group",
+        data: data,
+        setData: setData,
+        onCLick: props.onSubmit,
+        ["data-testid"]:"user-form",
+      },
+    }, 
+    schema : schema,
+    // form state rules, triggers name, actions
+    rules: [
+      {
+          on: "toggle:active",
+          "condition": data?.toggle === false,
+          action: () => {
+            setSchema((schema) => [...schema, 
+              {
+                name: "new",
+                type: "input",
+                key: "new",
+                props: {
+                  ["data-testid"]: "new-input",
+                  className: "form-control",
+                  placeholder: "Enter password",
+                  type: "text",
+                  onChange: (e) => setData({...data, new: e.target.value}),
+                }
+              }
+            ]);
+          },
+    
+      }, 
+      {
+          on: "toggle:inactive",
+          "condition": data?.toggle === true,
+          action: () => {
+            setSchema((schema) => schema.filter((item) => item.key !== "new"));
+          }
+      }
+    ],
+}
+
+
+  return (
+    <Formactory {...userForm} emitter={emitter}/>
+  )
+}
 ```
 
 ### Contract Reference
@@ -293,6 +452,7 @@ function App(props) {
 | error | object | optional Error element |
 | children | react node | Custom react elements |
 | component | react component | Custom component |
+| rules | object | Form state rules |
 
 
 
