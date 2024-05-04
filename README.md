@@ -191,7 +191,12 @@ Formactory will create form reactivity based on the rules you provide. The rules
 2. `handler` : the function that will update the form schema based on the action, takes one parameter which is the form schema.
 3. `condition` : checked when data is updated, if condition evaulates to true, the handler will be called with schema updating logic, and form ui will be re-rendered with the new logic.
 
-The way formactory create form reactivity is by useFormReactivty hook, which takes the schema, rules, and data as arguments. The hook will return the formReactivity object, which is the updated schema based on the rules you provide.
+Note: v3.0.5 and above you can use the `reducerGenerator` function to generate the reducer based on the rules you provide. Also ruleEvualator function to evaluate the rules based on the condition you provide.
+
+Currently to achieve the intended behavior, you must build custom hook to handle the reactivity of the form, in the neat future we will design better interferce with backward compatibility.
+
+The way formactory create form reactivity is by allowing the developer to build useFormReactivity hook, which will handle the form reactivity based on the rules you provide. The hook will return the formReactivity object which contains the form schema and form data. The form will be re-rendered based on the form schema and data reactivity.
+
 ```
 useFormReactivity(schema, rules, [dependencies])
 ```
@@ -201,119 +206,156 @@ useFormReactivity(schema, rules, [dependencies])
 
 
 ```jsx
-import React from 'react'
-import { Formactory, useFormReactivity } from 'formactory';
+import React, { useEffect } from 'react'
+import { Formactory, evaluateRule, reducerGenerator } from 'formactory';
 
-export default function ConditionalFormGeneration(props) {
+const useFormReactivity = () => {
+  const [ data , setData ] = React.useState({});
+  const [ toggle, setToggle ] = React.useState(false);
 
-  const [data, setData] = React.useState({
-    username: "",
-    email: "",
-    password: "",
-    new: "",
-  });
-  const [toggle, setToggle] = React.useState(false);
+  const handleSubmit  = (e) => {
+    e.preventDefault();
+    console.log(data);
+  }
 
-  const form = {
-    props : {
-      className: "form-group",
-      data: data,
-      setData: setData,
-      onCLick: props.onSubmit,
-      ["data-testid"]:"user-form",
-    },
-  };
+  const handleFormChange = (e) => {
+    setData({...data, [e.target.name]: e.target.value});
+  }
 
-  const schema = [
-    {
-      name: "username",
-      key: "username", // Unique key for the field
-      props: {
-        ["data-testid"]: "username-input",
-        className: "form-control",
-        placeholder: "Enter username",
-        type: "text",
-        onChange: (e) => setData({...data, username: e.target.value}),
+  // form settings, schema, and rules.
+  const settings = {
+    form : {
+      props : {
+        className: "form-group",
+        data: data,
+        onCLick: handleFormChange,
+        ["data-testid"]:"user-form",
       },
-      type: "input",
-      label: {
-        text: "Username",
-        props: {
-          ["data-testid"]: "username-label", // Unique key for the label
-          className: "form-label",
-        }
-      },
-      }, 
+    }, 
+    schema : [
       {
-        name: "email",
-        type: "input",
-        key: "email",
+        name: "username",
+        key: "username", // Unique key for the field
         props: {
-          ["data-testid"]: "email-input",
+          name: "username",
+          ["data-testid"]: "username-input",
           className: "form-control",
-          placeholder: "Enter email",
-          type: "email",
-          onChange: (e) => setData({...data, email: e.target.value}),
+          placeholder: "Enter username",
+          type: "text",
+          onChange: (e) => setData({...data, username: e.target.value}),
         },
+        type: "input",
         label: {
-          text: "Email",
+          text: "Username",
           props: {
-            ["data-testid"]: "email-label",
+            ["data-testid"]: "username-label", // Unique key for the label
             className: "form-label",
           }
-        }
-      },
-      {
-        name: "toggle",
-        type: "checkbox",
-        key: "toggle",
-        props: {
-          ["data-testid"]: "toggle-input",
-          className: "form-control",
-          onChange:  (e) => setToggle((prev) => !prev),
         },
-      },
-  ];
-
-  const rules = [
+        }, 
+        {
+          name: "email",
+          type: "input",
+          key: "email",
+          props: {
+            name: "email",
+            ["data-testid"]: "email-input",
+            className: "form-control",
+            placeholder: "Enter email",
+            type: "email",
+            onChange: (e) => setData({...data, email: e.target.value}),
+          },
+          label: {
+            text: "Email",
+            props: {
+              ["data-testid"]: "email-label",
+              className: "form-label",
+            }
+          }
+        },
+        {
+          name: "toggle",
+          type: "checkbox",
+          key: "toggle",
+          props: {
+            name: "toggle",
+            ["data-testid"]: "toggle-input",
+            className: "form-control",
+            onChange:  (e) => setToggle((prev) => !prev),
+          },
+        },
+    ],
+    rules: [
       {
         on: "showNewInput",
         condition: {operator: "equal", values: [toggle, true ]},
-        action: function(s) {
-          return [...s, {
-            name: "new",
-            type: "input",
-            key: "new",
-            props: {
-              ["data-testid"]: "new-input",
-              className: "form-control",
-              placeholder: "Enter new",
-              type: "text",
-              onChange: (e) => setData({...data, new: e.target.value}),
-            },
-            label: {
-              text: "New",
-              props: {
-                ["data-testid"]: "new-label",
-                className: "form-label",
+        action: function(settings) {
+          return {
+            ...settings , 
+            schema: [
+              ...settings.schema, {
+                name: "new",
+                type: "input",
+                props: {
+                  name: "new",
+                  ["data-testid"]: "new-input",
+                  className: "form-control",
+                  placeholder: "Enter new",
+                  type: "text",
+                  onChange: (e) => setData({...data, new: e.target.value}),
+                },
+                label: {
+                  text: "New",
+                  props: {
+                    ["data-testid"]: "new-label",
+                    className: "form-label",
+                  }
+                }
               }
-            }
-          }]
+            ]
+          }
         },
     },
       {
         on: "hideNewInput",
         condition: {operator: "equal", values: [toggle, false ]},
-        action: function (s) { return s.filter((field) => field.name !== "new")}
-      }
-    ];
+        action: function (settings) { 
+          return {
+          ...settings, schema: settings.schema.filter((field) => field.name !== "new")
+          }
+        }
+      },
+    ]
+  }
 
-    const { formReactivity } = useFormReactivity( schema, rules, [data, toggle]);
-  
+    // generate reducer based on the rules
+    const formRudcer = reducerGenerator(settings.rules);
+    
+    // local form state based on the schema
+    const [formReactivity, mutator] = React.useReducer(formRudcer,settings);
+    
+    useEffect(() => {
+        // evaluate conditional rules and mutate form
+        // when the condition is met
+        settings.rules.forEach((rule) => {
+          if (evaluateRule(rule.condition)){
+          mutator({type: rule.on, payload: {formState: formReactivity}});
+          }
+      });
+    // dependencies that the form will be reactive to
+    }, [data, toggle]) 
+
+    return { formReactivity }
+}
+
+export default function ConditionalFormGeneration(props) {
+  props?.onSubmit && props.onSubmit();
+  const { formReactivity } = useFormReactivity();
   return (
-    <Formactory form={form} schema={formReactivity} />
+    <Formactory form={formReactivity.form} schema={formReactivity.schema} />
   )
 }
+
 
 ```
 

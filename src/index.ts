@@ -1,3 +1,4 @@
 import Formactory from "./FormGenerator";
-import { useFormReactivity } from "./hooks";
-export { Formactory, useFormReactivity};
+import reducerGenerator from "./Reducer";
+import evaluateRule from "./Condtional";
+export { Formactory, reducerGenerator, evaluateRule };

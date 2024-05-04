@@ -7,6 +7,7 @@ const reducerGenerator = (rules : FormConfig["rules"]) =>{
    * @returns {Function} - returns a reducer function
    */
   const dynamicSwitch = new Map<string, Function>();
+
   rules.forEach(rule => {
     dynamicSwitch.set(rule.on, rule.action);
   });
@@ -21,10 +22,8 @@ const reducerGenerator = (rules : FormConfig["rules"]) =>{
      */
     
     const { type, payload } = action;
-    // console.log("playload", type, payload)
     const actionFunction = dynamicSwitch.get(type);
     const newState =  actionFunction ? actionFunction(payload?.formState) : state;
-    console.log("new State", newState)
     return newState;
   }
 }
