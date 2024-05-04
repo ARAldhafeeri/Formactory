@@ -6,13 +6,12 @@ export interface FormConfig {
     props: any; 
   };
   schema: FormItem[];
-  rules?: Config;
-  emitter?: IEmitter;
+  rules?: rules;
 }
 
 export interface FormItem {
   name: string;
-  type: "input" | "select" | "radio" | "checkbox" | "option" |  "textarea" | "custom" | "fieldset"; 
+  type: string;
   label?: {
     text: string;
     props: any;
@@ -24,7 +23,7 @@ export interface FormItem {
   props: any;
   children?: React.ReactNode; // Or a more specific type
   component?: React.FC<any> | string; 
-  key: string;
+  key?: string;
   fields?: FormItem[];
 }
 
@@ -33,25 +32,10 @@ export interface FormFieldProps {
   key: string;
 }
 
-export interface IEmitter {
-  on(event: string, callback: Function): void;
-  off(event: string, callback: Function): void;
-  emit(event: string, ...args: any[]): void;
-}
-
-type condition = {
-  operator: string;
-  data: any;
-};
-
-export interface IEvaluator {
-  (condition: condition): boolean | string;
-}
-
-type Rule = {
+export type Rule = {
   on: string;
-  condition: condition;
-  actions: Function[];
+  condition: {operator: string, values: any};
+  action: Function;
 };
 
-export type Config = Rule[];
+export type rules = Rule[];

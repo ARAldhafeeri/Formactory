@@ -11,7 +11,7 @@ export interface FormConfig {
 
 export interface FormItem {
   name: string;
-  type: "input" | "select" | "radio" | "checkbox" | "option" |  "textarea" | "custom" | "fieldset"; 
+  type: string;
   label?: {
     text: string;
     props: any;

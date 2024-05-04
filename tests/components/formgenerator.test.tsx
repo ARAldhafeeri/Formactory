@@ -69,25 +69,15 @@ describe('ConditionalFormGeneration', () => {
     render(<ConditionalFormGeneration onSubmit={mockSubmit} />);
   });
   
-  it('should dynamically render and remove new-input', () => {
+  it('should dynamically render and remove new-input', async () => {
     // Check form inputs are present
-    const toggleInput = screen.getByTestId<HTMLInputElement>('toggle-input');
-    // Simulate user input
-    fireEvent.click(toggleInput)
-    
-    setTimeout(() => {
-      const newInput = screen.getByTestId<HTMLInputElement>('new-input');
+   const user = userEvent.setup();
 
-      expect(screen.getByTestId('new-input')).toBeTruthy();
-      fireEvent.change(newInput, { target: { value: 'new value' } });
+   await user.click(screen.getByTestId('toggle-input'));
+    expect(screen.getByTestId('new-input')).toBeTruthy();
+    await user.click(screen.getByTestId('toggle-input'));
+    expect(screen.queryByTestId('new-input')).toBeNull();
 
-      expect(newInput).toBeTruthy();
-      expect(newInput.value).toBe('new value');
-  
-      fireEvent.click(toggleInput);
-  
-      expect(newInput).toBeFalsy();
-    }, 1000);
 
   });
 });

@@ -1,2 +1,3 @@
 import Formactory from "./FormGenerator";
-export { Formactory};
+import { useFormReactivity } from "./hooks";
+export { Formactory, useFormReactivity};

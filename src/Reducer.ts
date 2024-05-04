@@ -21,8 +21,10 @@ const reducerGenerator = (rules : FormConfig["rules"]) =>{
      */
     
     const { type, payload } = action;
+    // console.log("playload", type, payload)
     const actionFunction = dynamicSwitch.get(type);
     const newState =  actionFunction ? actionFunction(payload?.formState) : state;
+    console.log("new State", newState)
     return newState;
   }
 }
