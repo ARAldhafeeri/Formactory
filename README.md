@@ -196,17 +196,16 @@ Here is an example, when checkbox clicked, new field will appear, and when unche
 
 ```jsx
 import React from 'react'
-import { FormConfig } from '../../src/types';
-import { Formactory } from '../../src/index';
+import { Formactory } from 'formactory';
 
-export default function ConditionalFormGeneration(props) {
+export default function App(props) {
 
   const [data, setData] = React.useState({
     new: "",
   });
   const [toggle, setToggle] = React.useState(false);
  
-const userForm : FormConfig = {
+const userForm  = {
     form: {
       props : {
         className: "form-group",
