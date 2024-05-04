@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormConfig, FormItem, Rule, rules } from './types';
+import { FormConfig } from './types';
 import {FormField,  DefaultFormTags } from './FormField';
 
 const Formactory : React.FC<FormConfig> = ({ form, schema }) => {
@@ -14,10 +14,7 @@ const Formactory : React.FC<FormConfig> = ({ form, schema }) => {
    * @returns {JSX.Element} - returns a form element based on the form configuration
    */
 
-  const FormTags = React.useMemo(
-    () => form.customComponent ? form.customComponent : DefaultFormTags,
-     [form.customComponent]
-  );
+  const FormTags = form.customComponent ? form.customComponent : DefaultFormTags;
 
   return (
     <FormTags {...(form.customComponent ? {...form.props} : {formProps : form.props})}>

@@ -52,8 +52,6 @@ function App(props) {
 
   const [data, setData] = React.useState({
     username: "",
-    email: "",
-    password: "",
   });
 
   const userForm = {
