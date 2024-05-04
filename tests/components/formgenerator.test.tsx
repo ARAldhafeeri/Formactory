@@ -90,29 +90,4 @@ describe('ConditionalFormGeneration', () => {
     }, 1000);
 
   });
-
-  // it('should submit with conditional form', async () => {
-      
-  //     // Check form inputs are present
-  //     const usernameInput = screen.getByTestId<HTMLInputElement>('username-input');
-  //     const emailInput = screen.getByTestId<HTMLInputElement>('email-input');
-  //     const toggleInput = screen.getByTestId<HTMLInputElement>('toggle-input');
-  //     const passwordInput = screen.getByTestId<HTMLInputElement>('password-input');
-
-  //     const form = screen.getByTestId('user-form');
-  //     // Simulate user input
-  //     fireEvent.change(usernameInput, { target: { value: 'testuser' } }); 
-  //     fireEvent.change(emailInput, { target: { value: 'email@email.com' } }); 
-  //     fireEvent.change(toggleInput, { target: { checked: true } });
-  //     fireEvent.change(passwordInput, { target: { value: 'mypassword' } });
-  //     render(<ConditionalFormGeneration onSubmit={mockSubmit} />);
-  //     const newInput = screen.getByTestId<HTMLInputElement>('new-input');
-  //     fireEvent.change(newInput, { target: { value: 'new value' } });
-
-  //     fireEvent.submit(form);
-  //     expect(mockSubmit).toHaveBeenCalled();
-  // });
-
-
-
 });

@@ -6,6 +6,7 @@ export interface FormConfig {
     props: any; 
   };
   schema: FormItem[];
+  rules?: rules;
 }
 
 export interface FormItem {
@@ -30,3 +31,11 @@ export interface FormFieldProps {
   field: FormItem;
   key: string;
 }
+
+export type Rule = {
+  on: string;
+  condition: {operator: string, values: any};
+  action: Function;
+};
+
+export type rules = Rule[];

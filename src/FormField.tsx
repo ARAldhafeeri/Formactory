@@ -26,11 +26,13 @@ const renderField = (field: FormItem) => {
     case 'custom':
       return field.children ? <field.component {...field.props}> {field.children} </field.component> : <field.component {...field.props} />;
     case 'fieldset':
-      return <fieldset {...field.props}>
-        {field.fields.map((field, key) => (
-          <FormField field={field} key={`${genKey()}`} />
-        ))}
-      </fieldset>;
+      return (
+        <fieldset {...field.props}>
+          {field.fields.map((field, key) => (
+            <FormField field={field} key={`${genKey()}`} />
+          ))}
+      </fieldset>
+      )
     default:
        throw new Error(`Unsupported field type: ${field.type}`);
   }

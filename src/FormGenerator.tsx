@@ -1,8 +1,10 @@
 import React from 'react';
-import { FormConfig, FormItem } from './types';
+import { FormConfig, FormItem, Rule, rules } from './types';
 import {FormField,  DefaultFormTags } from './FormField';
+import reducerGenerator from './Reducer';
+import evaluateRule from './Condtional';
 
-const Formactory : React.FC<FormConfig> = ({ form, schema  }) => {
+const Formactory : React.FC<FormConfig> = ({ form, schema, rules  }) => {
   /**
    * FormTags is a custom component that will be used to render the form
    * If customComponent is not provided, DefaultFormTags will be used
@@ -13,12 +15,30 @@ const Formactory : React.FC<FormConfig> = ({ form, schema  }) => {
    * @param {schema|Array} schema - form fields
    * @returns {JSX.Element} - returns a form element based on the form configuration
    */
-  const FormTags = form.customComponent ? form.customComponent : DefaultFormTags ;
+
+
+  const FormTags = React.useMemo(
+    () => form.customComponent ? form.customComponent : DefaultFormTags,
+     [form.customComponent]
+  );
+
+  const formRudcer = React.useMemo(
+    () => reducerGenerator(rules ?? []), [rules]
+  );
+  
+  // local form state based on the schema
+  const [formState, dispatch] = React.useReducer(formRudcer, schema);
+
 
 
   React.useEffect(() => {
-    
-}, [form?.props?.data, schema]); 
+    rules?.forEach((rule : Rule ) => {
+       if (evaluateRule(rule.condition)){
+          dispatch({type: rule.on, payload: {formState: formState}});
+       }
+    });
+
+}, [form?.props?.data]); 
 
 
   return (

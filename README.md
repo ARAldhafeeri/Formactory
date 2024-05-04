@@ -41,7 +41,7 @@ npm install formacotry
 ```
 ### Basic Usage
 
-- Creating a simple form with Formactory, with three input fields and a submit button.
+- Creating a simple form with Formactory, create input and button.
 ```jsx
 
 import { Formactory } from 'formactory';
@@ -84,40 +84,6 @@ function App(props) {
         },
         }, 
         {
-          name: "email",
-          type: "input",
-          props: {
-            className: "form-control",
-            placeholder: "Enter email",
-            type: "email",
-            onChange: (e) => setData({...data, email: e.target.value}),
-          },
-          label: {
-            text: "Email",
-            props: {
-              className: "form-label",
-            }
-          }
-        },
-        {
-          name: "password",
-          type: "input",
-          label: {
-            text: "Password",
-            props: {
-              className: "form-label",
-
-            }
-          },
-          props: {
-            className: "form-control",
-            placeholder: "Enter password",
-            type: "password",
-            onChange: (e) => setData({...data, password: e.target.value}),
-
-          }
-        },
-        {
           name: "submit",
           type: "custom",
           component: "button",
@@ -154,9 +120,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 const schema = z.object({
-  username: z.string().min(1, {message : "username required!"}).max(10),
   email: z.string().email({message : "email required!"}),
-  password: z.string().min(6, {message : "password required!"}),
 });
 
 
@@ -167,9 +131,7 @@ function App(props) {
   });
 
   const [data, setData] = React.useState({
-    username: "",
     email: "",
-    password: "",
   });
 
   const onSubmit = (data) => {
@@ -182,37 +144,12 @@ function App(props) {
     form: {
       props : {
         className: "form-group",
-        onSubmit: handleSubmit(onSubmit)
+        onSubmit: handleSubmit(onSubmit),
+        action: "test",
       },
-      action: "test",
       data: data,
-      setData: setData,
     }, 
     schema : [
-      {
-        name: "username",
-        props: {
-          className: "form-control",
-          placeholder: "Enter username",
-          type: "text",
-          onChange: (e) => setData({...data, username: e.target.value}),
-          ...register("username"),
-        },
-        type: "input",
-        label: {
-          text: "Username",
-          props: {
-            className: "form-label",
-          }
-        },
-        error: {
-          text: errors.username?.message,
-          props: {
-            className: "text-danger",
-          }
-        }
-
-        },
 
         {
           name: "email",
@@ -237,40 +174,6 @@ function App(props) {
             }
           }
         },
-        {
-          name: "password",
-          type: "input",
-          label: {
-            text: "Password",
-            props: {
-              className: "form-label",
-
-            }
-          },
-          props: {
-            className: "form-control",
-            placeholder: "Enter password",
-            type: "password",
-            onChange: (e) => setData({...data, password: e.target.value}),
-            ...register("password"),
-          },
-          error: {
-            text: errors.password?.message,
-            props: {
-              className: "text-danger",
-            }
-          }
-        },
-        {
-          name: "submit",
-          type: "custom",
-          component: "button",
-          props: {
-            className: "btn btn-primary",
-            type: "submit",
-          },
-          children: <span>submit</span>
-        }
     ]
   }
   return (
@@ -281,100 +184,29 @@ function App(props) {
 ```
 
 #### using FormState to handle form state for dynamic forms.
-This example will add a new field to the form when the user checks the checkbox. The way to do this is to assign the form schema to a react state and update the schema when the user checks the checkbox. The same principle follows to more complex forms, or conditions: When user interaction changes, the form schema changes accordingly. The form mutates based on schema updates and data updates.
+This example will add a new field to the form when the user checks the checkbox. Even though this is a simple example, it demonstrates how to use FormState to handle form state for dynamic forms.
+
+Formactory will create local state for the form, based on rules, those
+rules are checked when form data is updated. If rules are met form actory will dispatch an action to update the form schema and re-render the form based on the action handler. A rule consist of three main parts:
+1. `on` : the form mutation action that will trigger the handler to update the form schema.
+2. `handler` : the function that will update the form schema based on the action.
+3. `condition` : checked when data is updated, if condition evaulates to true, the handler will be called with schema updating logic, and form ui will be re-rendered with the new logic.
+
+Here is an example, when checkbox clicked, new field will appear, and when unchecked, new field will disappear. 
 
 ```jsx
 import React from 'react'
-import { Formactory } from 'formactory';
+import { FormConfig } from '../../src/types';
+import { Formactory } from '../../src/index';
+
 export default function ConditionalFormGeneration(props) {
 
   const [data, setData] = React.useState({
-    username: "",
-    email: "",
-    password: "",
-    toggle: false,
     new: "",
   });
-
-  const handleToggle = (e) => {
-    const value = e.target.checked;
-    setData({...data, toggle: value });
-    value?  setSchema([
-      ...schema,
-      {
-        name: "password",
-        type: "input",
-        key: "password",
-        props: {
-          ["data-testid"]: "new-input",
-          className: "form-control",
-          placeholder: "Enter password",
-          type: "password",
-          onChange: (e) => setData({...data, password: e.target.value}),
-        },
-        label: {
-          text: "Password",
-          props: {
-            ["data-testid"]: "password-label",
-            className: "form-label",
-          }
-        }
-      }
-    ]) : setSchema((schema) => schema.filter((field) => field.key !== "password"));
-  }
-  const [schema , setSchema] = React.useState([
-    {
-      name: "username",
-      key: "username", // Unique key for the field
-      props: {
-        ["data-testid"]: "username-input",
-        className: "form-control",
-        placeholder: "Enter username",
-        type: "text",
-        onChange: (e) => setData({...data, username: e.target.value}),
-      },
-      type: "input",
-      label: {
-        text: "Username",
-        props: {
-          ["data-testid"]: "username-label", // Unique key for the label
-          className: "form-label",
-        }
-      },
-      }, 
-      {
-        name: "email",
-        type: "input",
-        key: "email",
-        props: {
-          ["data-testid"]: "email-input",
-          className: "form-control",
-          placeholder: "Enter email",
-          type: "email",
-          onChange: (e) => setData({...data, email: e.target.value}),
-        },
-        label: {
-          text: "Email",
-          props: {
-            ["data-testid"]: "email-label",
-            className: "form-label",
-          }
-        }
-      },
-      {
-        name: "toggle",
-        type: "checkbox",
-        key: "toggle",
-        props: {
-          ["data-testid"]: "toggle-input",
-          className: "form-control",
-          onChange:  handleToggle,
-        },
-      },
-]);
-
+  const [toggle, setToggle] = React.useState(false);
  
-const userForm = {
+const userForm : FormConfig = {
     form: {
       props : {
         className: "form-group",
@@ -384,15 +216,121 @@ const userForm = {
         ["data-testid"]:"user-form",
       },
     }, 
-    schema : schema,
+    schema : [
+        {
+          name: "toggle",
+          type: "checkbox",
+          key: "toggle",
+          props: {
+            ["data-testid"]: "toggle-input",
+            className: "form-control",
+            onChange:  (e) => setToggle(e.target.checked),
+          },
+        },
+  ],
+  rules : [
+    {
+      on: "showNewInput",
+      condition: {operator: "equal", values: [toggle, true ]},
+      action: function(schema) {
+        return {
+          schema: [...schema, {
+            name: "new",
+            type: "input",
+            key: "new",
+            props: {
+              ["data-testid"]: "new-input",
+              className: "form-control",
+              placeholder: "Enter new",
+              type: "text",
+              onChange: (e) => setData({...data, new: e.target.value}),
+            },
+            label: {
+              text: "New",
+              props: {
+                ["data-testid"]: "new-label",
+                className: "form-label",
+              }
+            }
+          }]
+        }
+      }
+    },
+    {
+      on: "hideNewInput",
+      condition: {operator: "equal", values: [toggle, false ]},
+      action: function (schema) { return schema.filter((field) => field.key !== "password")}
+    }
+  ]
 }
-
 
   return (
     <Formactory {...userForm} />
   )
 }
+```
 
+### using with rich ui libraries
+Formactory is compatible with rich ui libraries like antd, material-ui, and so on. Here is an example of using Formactory with material-ui, all you have to do is use the custom component type and pass the component as a prop to the schema.
+
+```bash
+npm install @mui/material @mui/icons-material
+```
+```jsx
+import { Formactory } from 'formactory';
+import React from 'react';
+import { Input, Button, Form } from 'antd';
+
+const  App = () => {
+  const [data, setData] = React.useState({
+    username: "", 
+  })
+
+  const userForm = {
+    form: {
+      customComponent: Form,
+      props : {
+        className: "form-group",
+        onSubmit: console.log("test")
+      },
+      data: data,
+    }, 
+    schema : [
+        {
+          name: "username",
+          type: "custom",
+          component: Input,
+          props: {
+            className: "form-control",
+            placeholder: "Enter username",
+            type: "text",
+            onChange: (e) => setData({...data, username: e.target.value}),
+          },
+          label: {
+            text: "Username",
+            props: {
+              className: "form-label",
+            }
+          },
+        }, 
+        {
+          name: "submit",
+          type: "custom",
+          component: Button,
+          props: {
+            className: "btn btn-primary",
+            type: "submit",
+          },
+          children: <span>submit</span>
+        }
+    ]
+  }
+}
+
+  return (
+    <Formactory {...userForm} />
+  );
+}
 ```
 
 ### Contract Reference
@@ -416,6 +354,13 @@ const userForm = {
 | error | object | optional Error element |
 | children | react node | Custom react elements |
 | component | react component | Custom component |
+| rules | object | Form rules for dynamic forms |
+| rules.on | string | Form action |
+| rules.condition | object | Form condition |
+| rules.condition.operator | string | Form condition operator |
+| rules.condition.values | array or single value with when operator | Form condition values |
+
+
 
 
 
