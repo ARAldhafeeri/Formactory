@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { FormConfig } from './types';
 import {FormField,  DefaultFormTags } from './FormField';
 
@@ -26,4 +26,4 @@ const Formactory : React.FC<FormConfig> = ({ form, schema }) => {
   );
 };
 
-export default Formactory;
+export default memo(Formactory);
