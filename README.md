@@ -191,7 +191,7 @@ function App(props) {
 
 #### Handling dynamic forms, optimizing re-renders with formactory & react-form-hook.
 
-note : v3.0.8 and above
+note : v3.0.10 and above
 
 This example will add a new field to the form when the user checks the checkbox. Even though this is a simple example, it demonstrates how to use formactory to handle form state for dynamic forms. Note the following example uses react-form-hook, using react-form-hook will minimize the re-renders even though the dynamic form might requires high reactivities and re-renders.
 
