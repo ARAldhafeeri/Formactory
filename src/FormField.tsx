@@ -29,7 +29,7 @@ const renderField = (field: FormItem) => {
       return (
         <fieldset {...field.props}>
           {field.fields.map((field, key) => (
-            <FormField field={field} key={`${genKey()}`} />
+            <FormField field={field} key={`key`} />
           ))}
       </fieldset>
       )
@@ -48,9 +48,9 @@ export const FormField : React.FC<FormFieldProps> = ({field} ) => {
    * @param {key|String} key - unique key for the form field
    */
   return (
-    <React.Fragment key={genKey()}> {/* Wrapper for field, label, and error */}
+    <React.Fragment > {/* Wrapper for field, label, and error */}
         {field.label && (
-          <label {...field.label.props} key={genKey()}>
+          <label {...field.label.props} >
             {field.label.text}
             {field.error && <span {...field.error.props}>{field.error.text}</span>}
           </label>
