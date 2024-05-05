@@ -5,7 +5,7 @@ const useFormMutator = () => {
    * Mutate formactory settings.
    */
   
-  const appendFild = (settings : FormConfig, field : FormItem ) => {
+  const appendField = (settings : FormConfig, field : FormItem ) => {
     /**
      * @description Append a new field to the schema.
      * @param settings FormConfig
@@ -105,8 +105,78 @@ const useFormMutator = () => {
     }
   }
 
+  const appendProp = (settings : FormConfig, fieldName : string, name : string, value: any) => {
+    /**
+     * @description Append an attribute to a field.
+     * @param settings FormConfig
+     * @param fieldName string
+     * @param attribute string
+     * @param appendProp any
+     * @returns FormConfig
+     * @example
+     * const settings = {
+     * schema: [
+     * {name: 'name', type: 'text'},
+     * {name: 'email', type: 'email'}
+     * ]}
+     * 
+     * appendAttribute(settings, 'email', 'required');
+     * @returns FormConfig
+    **/
+    return {
+      ...settings, schema: settings.schema.map((field) => field.name === fieldName ? {...field, [field.props]: {...field.props, name : value}} : field)
+    }
+  };
+
+  const removeProp = (settings : FormConfig, fieldName : string, name : string) => {
+    /**
+     * @description Remove an attribute from a field.
+     * @param settings FormConfig
+     * @param fieldName string
+     * @param name string
+     * @returns FormConfig
+     * @example
+     * const settings = {
+     * schema: [
+     * {name: 'name', type: 'text'},
+     * {name: 'email', type: 'email'}
+     * ]}
+     * // remove the required prop from the email field
+     * removeAttribute(settings, 'email', 'required');
+     * @returns FormConfig
+     * */
+
+    const field = settings.schema.find((field) => field.name === fieldName);
+    field && delete field.props[name];
+    return settings;
+  };
+
+  const updateProp = (settings : FormConfig, fieldName : string, name : string, value: any) => {
+    /**
+     * @description Update an attribute of a field.
+     * @param settings FormConfig
+     * @param fieldName string
+     * @param name string
+     * @param value any
+     * @returns FormConfig
+     * @example
+     * const settings = {
+     * schema: [
+     * {name: 'name', type: 'text'},
+     * {name: 'email', type: 'email'}
+     * ]}
+     * // update the required prop of the email field
+     * updateAttribute(settings, 'email', 'required', true);
+     * @returns FormConfig
+     * */
+
+    return {
+      ...settings, schema: settings.schema.map((field) => field.name === fieldName ? {...field, [field.props]: {...field.props, name : value}} : field)
+    };
+  };
+
   return {
-    appendFild,
+    appendField,
     removeField,
     fieldExists,
     swapField,
@@ -114,6 +184,7 @@ const useFormMutator = () => {
   };
   
 };
+
 
 export default useFormMutator;
 
