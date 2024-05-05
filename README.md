@@ -153,7 +153,6 @@ function App(props) {
           name: "email",
           type: "input",
           props: {
-            className: "form-control",
             placeholder: "Enter email",
             type: "email",
             onChange: (e) => setData({...data, email: e.target.value}),
@@ -172,6 +171,15 @@ function App(props) {
             }
           }
         },
+            {
+          "name": "submit",
+          "type": "input",
+          "key": "submit",
+          "props": {
+            "type": "submit",
+            "name": "submit",
+          },
+        },
     ]
   }
   return (
@@ -181,72 +189,113 @@ function App(props) {
 
 ```
 
-#### using FormState to handle form state for dynamic forms.
-This example will add a new field to the form when the user checks the checkbox. Even though this is a simple example, it demonstrates how to use FormState to handle form state for dynamic forms.
+#### Handling dynamic forms, optimizing re-renders with formactory & react-form-hook.
+This example will add a new field to the form when the user checks the checkbox. Even though this is a simple example, it demonstrates how to use formactory to handle form state for dynamic forms. Note the following example uses react-form-hook, using react-form-hook will minimize the re-renders even though the dynamic form might requires high reactivities and re-renders.
 
 Formactory will create form reactivity based on the rules you provide. The rules are an array of objects with three parts:
 1. `on` : the form mutation action that will trigger the handler to update the form schema.
 2. `handler` : the function that will update the form schema based on the action, takes one parameter which is the form schema.
 3. `condition` : checked when data is updated, if condition evaulates to true, the handler will be called with schema updating logic, and form ui will be re-rendered with the new logic.
 
-Note: v3.0.5 and above you can use the `reducerGenerator` function to generate the reducer based on the rules you provide. Also ruleEvualator function to evaluate the rules based on the condition you provide.
+Two main hooks :
 
-Currently to achieve the intended behavior, you must build custom hook to handle the reactivity of the form, in the neat future we will design better interferce with backward compatibility.
-
-The way formactory create form reactivity is by allowing the developer to build useFormReactivity hook, which will handle the form reactivity based on the rules you provide. The hook will return the formReactivity object which contains the form schema and form data. The form will be re-rendered based on the form schema and data reactivity.
 
 ```
-useFormReactivity(schema, rules, [dependencies])
+useFormReactivity(formSettings, [dependencies])
 ```
-- schema : is the schema you defined.
-- rules : is the rules you defined.
+
+- formSettings : is formactory settings object that contains the form schema, form settings, and rules.
 - dependencies : is the data in which you want the form to be reactive to.
+
+rules format : 
+```JSON
+[
+  {on: "name-of-action", condition: {operator: "equal", values: [true, false]}, action: "function(settings) { return settings }" }
+]
+```
+- on : the form mutation action that will trigger the handler to update the form schema.
+- condition : checked when data is updated, if condition evaulates to true, the handler will be called with schema updating logic, and form ui will be re-rendered with the new logic.
+- action : the function that will update the form schema based  the condition, action name, takes one parameter which is the form settings.
+
+```
+useFormMutator()
+```
+returns the following :
+- appendFild : add a new field to the form settings. 
+  + inputs: form settings, field settings
+```
+appendField(formSettings, fieldSettings);
+```
+- removeField : remove a field from the form settings.
+  + inputs: form settings, field name
+```
+removeField(formSettings, fieldName);
+```
+- fieldExists : check if a field exists in the form settings.
+  + inputs: form settings, field name
+```
+fieldExists(formSettings, fieldName);
+```
+- swapField : swap two fields in the form settings.
+  + inputs: form settings, field name, field name
+```
+swapField(formSettings, fieldName, fieldName);
+```
+- replaceField : replace a field in the form settings.
+  + inputs: form settings, field name, field settings
+```
+replaceField(formSettings, fieldName, fieldSettings);
+```
+
+
+
 
 
 ```jsx
 import React, { useEffect } from 'react'
-import { Formactory, evaluateRule, reducerGenerator } from 'formactory';
+import { Formactory, useFormMutator, useFormReactivity } from 'formactory';
+import { useForm, useFormContext } from 'react-hook-form';
 
-const useFormReactivity = () => {
-  const [ data , setData ] = React.useState({});
-  const [ toggle, setToggle ] = React.useState(false);
+export default function ConditionalFormGeneration(props) {
+  // get form mutator functions
+  const { appendFild, removeField, fieldExists, swapField, updateInput, replaceField } = useFormMutator();
+  // get form hook functions
+  const { register, handleSubmit, formState, watch } = useForm({
+    defaultValues: {
+      username: "",
+      email: "",
+      toggle: false,
+      new: "",
+    },
+  });
 
-  const handleSubmit  = (e) => {
-    e.preventDefault();
+  // watch for toggle change
+  const toggle  = watch('toggle', false)
+  console.log('toggle', toggle)
+
+  // submit handler
+  const ss = (data) => {
     console.log(data);
   }
 
-  const handleFormChange = (e) => {
-    setData({...data, [e.target.name]: e.target.value});
-  }
-
-  // form settings, schema, and rules.
+  // form settings
   const settings = {
     form : {
       props : {
-        className: "form-group",
-        data: data,
-        onCLick: handleFormChange,
-        ["data-testid"]:"user-form",
+        onSubmit: handleSubmit(ss),
       },
     }, 
+    // form schema
     schema : [
       {
         name: "username",
-        key: "username", // Unique key for the field
-        props: {
-          name: "username",
-          ["data-testid"]: "username-input",
-          className: "form-control",
-          placeholder: "Enter username",
-          type: "text",
-          onChange: (e) => setData({...data, username: e.target.value}),
-        },
         type: "input",
+        props: {
+          ...register("username"),
+        },
         label: {
           text: "Username",
           props: {
-            ["data-testid"]: "username-label", // Unique key for the label
             className: "form-label",
           }
         },
@@ -254,19 +303,12 @@ const useFormReactivity = () => {
         {
           name: "email",
           type: "input",
-          key: "email",
           props: {
-            name: "email",
-            ["data-testid"]: "email-input",
-            className: "form-control",
-            placeholder: "Enter email",
-            type: "email",
-            onChange: (e) => setData({...data, email: e.target.value}),
+            ...register("email"),
           },
           label: {
             text: "Email",
             props: {
-              ["data-testid"]: "email-label",
               className: "form-label",
             }
           }
@@ -276,84 +318,60 @@ const useFormReactivity = () => {
           type: "checkbox",
           key: "toggle",
           props: {
-            name: "toggle",
-            ["data-testid"]: "toggle-input",
-            className: "form-control",
-            onChange:  (e) => setToggle((prev) => !prev),
+            ...register("toggle"),
+          },
+        },
+        {
+          "name": "submit",
+          "type": "input",
+          "key": "submit",
+          "props": {
+            "type": "submit",
+            "name": "submit",
           },
         },
     ],
+    // rules for dynamic forms
     rules: [
       {
         on: "showNewInput",
-        condition: {operator: "equal", values: [toggle, true ]},
+        condition: {operator: "equal", values: [toggle, true] },
         action: function(settings) {
-          return {
-            ...settings , 
-            schema: [
-              ...settings.schema, {
-                name: "new",
-                type: "input",
-                props: {
-                  name: "new",
-                  ["data-testid"]: "new-input",
-                  className: "form-control",
-                  placeholder: "Enter new",
-                  type: "text",
-                  onChange: (e) => setData({...data, new: e.target.value}),
-                },
-                label: {
-                  text: "New",
-                  props: {
-                    ["data-testid"]: "new-label",
-                    className: "form-label",
-                  }
-                }
+          const field = {
+            name: "new",
+            type: "input",
+            props: {
+              type: "text",
+              ...register("new"),
+            },
+            label: {
+              text: "New",
+              props: {
               }
-            ]
-          }
-        },
+            }
+          };
+
+          return fieldExists(settings, "new") ? settings : appendFild(settings, field);
+        }
     },
       {
         on: "hideNewInput",
-        condition: {operator: "equal", values: [toggle, false ]},
-        action: function (settings) { 
-          return {
-          ...settings, schema: settings.schema.filter((field) => field.name !== "new")
-          }
+        condition: {operator: "equal", values: [toggle, false]},
+        action: function(settings) {
+          return fieldExists(settings, "new") ? removeField(settings, "new") : settings;
         }
       },
     ]
-  }
+  };
 
-    // generate reducer based on the rules
-    const formRudcer = reducerGenerator(settings.rules);
-    
-    // local form state based on the schema
-    const [formReactivity, mutator] = React.useReducer(formRudcer,settings);
-    
-    useEffect(() => {
-        // evaluate conditional rules and mutate form
-        // when the condition is met
-        settings.rules.forEach((rule) => {
-          if (evaluateRule(rule.condition)){
-          mutator({type: rule.on, payload: {formState: formReactivity}});
-          }
-      });
-    // dependencies that the form will be reactive to
-    }, [data, toggle]) 
+  // init form reactivity
+  const { formReactivity } = useFormReactivity(settings, [toggle]);
 
-    return { formReactivity }
-}
-
-export default function ConditionalFormGeneration(props) {
-  props?.onSubmit && props.onSubmit();
-  const { formReactivity } = useFormReactivity();
+  // render dynamic form
   return (
     <Formactory form={formReactivity.form} schema={formReactivity.schema} />
   )
 }
-
 
 ```
 
@@ -388,7 +406,6 @@ const  App = () => {
           type: "custom",
           component: Input,
           props: {
-            className: "form-control",
             placeholder: "Enter username",
             type: "text",
             onChange: (e) => setData({...data, username: e.target.value}),
@@ -405,7 +422,6 @@ const  App = () => {
           type: "custom",
           component: Button,
           props: {
-            className: "btn btn-primary",
             type: "submit",
           },
           children: <span>submit</span>
@@ -417,7 +433,7 @@ const  App = () => {
   return (
     <Formactory {...userForm} />
   );
-}
+};
 ```
 
 ### Contract Reference

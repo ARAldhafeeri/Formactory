@@ -1,46 +1,44 @@
 import React, { useEffect } from 'react'
 import { FormConfig } from '../../src/types';
-import { Formactory, evaluateRule, reducerGenerator } from '../../src/index';
+import { Formactory, evaluateRule, reducerGenerator, useFormMutator, useFormReactivity } from '../../src/index';
+import { useForm, useFormContext } from 'react-hook-form';
+    
+export default function ConditionalFormGeneration(props) {
+  const { appendFild, removeField, fieldExists } = useFormMutator();
+  const { register, handleSubmit, formState, watch } = useForm({
+    defaultValues: {
+      username: "",
+      email: "",
+      toggle: false,
+      new: "",
+    },
+  });
 
-const useFormReactivity = () => {
-  const [ data , setData ] = React.useState({});
-  const [ toggle, setToggle ] = React.useState(false);
+  const toggle  = watch('toggle', false)
+  console.log('toggle', toggle)
 
-  const handleSubmit  = (e) => {
-    e.preventDefault();
+  const ss = (data) => {
     console.log(data);
-  }
-
-  const handleFormChange = (e) => {
-    setData({...data, [e.target.name]: e.target.value});
   }
 
   const settings = {
     form : {
       props : {
-        className: "form-group",
-        data: data,
-        onCLick: handleFormChange,
-        ["data-testid"]:"user-form",
+        onSubmit: handleSubmit(props.onSubmit || ss),
       },
     }, 
     schema : [
       {
         name: "username",
-        key: "username", // Unique key for the field
-        props: {
-          name: "username",
-          ["data-testid"]: "username-input",
-          className: "form-control",
-          placeholder: "Enter username",
-          type: "text",
-          onChange: (e) => setData({...data, username: e.target.value}),
-        },
         type: "input",
+        props: {
+          ['data-testid']: "username-input",
+          ...register("username"),
+        },
         label: {
           text: "Username",
           props: {
-            ["data-testid"]: "username-label", // Unique key for the label
+            ['data-testid']: "username-label",
             className: "form-label",
           }
         },
@@ -48,19 +46,13 @@ const useFormReactivity = () => {
         {
           name: "email",
           type: "input",
-          key: "email",
           props: {
-            name: "email",
-            ["data-testid"]: "email-input",
-            className: "form-control",
-            placeholder: "Enter email",
-            type: "email",
-            onChange: (e) => setData({...data, email: e.target.value}),
+            ...register("email"),
           },
           label: {
             text: "Email",
             props: {
-              ["data-testid"]: "email-label",
+              ['data-testid']: "email-label",
               className: "form-label",
             }
           }
@@ -70,77 +62,56 @@ const useFormReactivity = () => {
           type: "checkbox",
           key: "toggle",
           props: {
-            name: "toggle",
-            ["data-testid"]: "toggle-input",
-            className: "form-control",
-            onChange:  (e) => setToggle((prev) => !prev),
+            ['data-testid']: "toggle-input",
+            ...register("toggle"),
+          },
+        },
+        {
+          "name": "submit",
+          "type": "input",
+          "key": "submit",
+          "props": {
+            "type": "submit",
+            "name": "submit",
           },
         },
     ],
     rules: [
       {
         on: "showNewInput",
-        condition: {operator: "equal", values: [toggle, true ]},
+        condition: {operator: "equal", values: [toggle, true] },
         action: function(settings) {
-          return {
-            ...settings , 
-            schema: [
-              ...settings.schema, {
-                name: "new",
-                type: "input",
-                props: {
-                  name: "new",
-                  ["data-testid"]: "new-input",
-                  className: "form-control",
-                  placeholder: "Enter new",
-                  type: "text",
-                  onChange: (e) => setData({...data, new: e.target.value}),
-                },
-                label: {
-                  text: "New",
-                  props: {
-                    ["data-testid"]: "new-label",
-                    className: "form-label",
-                  }
-                }
+          const field = {
+            name: "new",
+            type: "input",
+            props: {
+              type: "text",
+              ['data-testid']: "new-input",
+              ...register("new"),
+            },
+            label: {
+              text: "New",
+              props: {
               }
-            ]
-          }
-        },
+            }
+          };
+
+          return fieldExists(settings, "new") ? settings : appendFild(settings, field);
+        }
     },
       {
         on: "hideNewInput",
-        condition: {operator: "equal", values: [toggle, false ]},
-        action: function (settings) { 
-          return {
-          ...settings, schema: settings.schema.filter((field) => field.name !== "new")
-          }
+        condition: {operator: "equal", values: [toggle, false]},
+        action: function(settings) {
+          return fieldExists(settings, "new") ? removeField(settings, "new") : settings;
         }
       },
     ]
-  }
+  };
 
-    // generate reducer based on the rules
-    const formRudcer = reducerGenerator(settings.rules);
-    
-    // local form state based on the schema
-    const [formReactivity, mutator] = React.useReducer(formRudcer,settings);
-    
-    useEffect(() => {
-        // evaluate conditional rules and mutate form
-        settings.rules.forEach((rule) => {
-          if (evaluateRule(rule.condition)){
-          mutator({type: rule.on, payload: {formState: formReactivity}});
-          }
-      });
-    }, [data, toggle]) 
 
-    return { formReactivity }
-}
-
-export default function ConditionalFormGeneration(props) {
-  props?.onSubmit && props.onSubmit();
-  const { formReactivity } = useFormReactivity();
+  const { formReactivity } = useFormReactivity(settings, [toggle]);
+  console.count("ConditionalFormGeneration");
   return (
     <Formactory form={formReactivity.form} schema={formReactivity.schema} />
   )

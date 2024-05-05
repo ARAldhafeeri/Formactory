@@ -1,6 +1,6 @@
 {
   "name": "formactory",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "Formactory is a JavaScript/TypeScript library that revolutionizes form building. It replaces cumbersome hard-coded HTML with a declarative JSON schema, dramatically enhancing the maintainability of large, complex forms. The library is super fast,  supports react tools, and handle dynamic froms easily.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,6 +22,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.51.4",
     "ts-jest": "^29.1.2",
     "typescript": "^5.4.5"
   }
