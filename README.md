@@ -10,6 +10,7 @@ Formactory is a ReactJS library that changes the way developers build forms for 
 - Extensibility: Seamlessly use standard HTML elements, custom components, or your favorite UI library components.
 - React Hook Form Integration: Leverage the power of react-hook-form for efficient form management.
 - Validation Ready: Integrate with validation libraries like Zod for robust data validation.
+- Dynamic Forms: Handle dynamic forms in more predictable, readable ways.
 
 ## Why Formactory?
 
@@ -19,10 +20,6 @@ Example (React Hook Form, Zod)
 
 ## What is Formactory?
 An abstraction layer that simplifies form creation by using a JSON schema to define form structure and elements. Formactory then going to parse the schema and render the form elements accordingly. The library intergratable with existing React tools.
-
-## Dynamic forms  
-Formfactory already passes schema and data to useEffect, so you can use the schema to update the form based on user interaction. This is useful for dynamic forms that change based on user input. To create dynamic forms, all you have to do is set the schema of the form as a react state, and update the schema based on user interaction, conditions and so on. 
-
 
 ## Comparison
 
@@ -447,13 +444,6 @@ const  App = () => {
 |----------|------|-------------|
 | props | object | Form element props |
 ] customComponents | object | Custom form component from ui libraries |
-
-
-#### `contract.schema`
-
-- list of fields, where each field is an object with the following properties:
-| Property | Type | Description |
-|----------|------|-------------|
 | name | string | Field name |
 | type | string | Field type |
 | props | object | Field element props |
@@ -461,24 +451,13 @@ const  App = () => {
 | error | object | optional Error element |
 | children | react node | Custom react elements |
 | component | react component | Custom component |
-
-caution : name, type are field for formactory. Add name, type to field.props
-
-#### `contract.rules`
-
-- list of rules, where each rule is an object with the following properties:
-| Property | Type | Description |
-|----------|------|-------------|
 | on | string | Form action |
 | condition | object | Condition to trigger the handler |
 | action | function | Handler function |
-
-Note : the handler function should pass the form settings and return the updated form settings when condition is meet.
-Note : condition is an object with the following properties:
-| Property | Type | Description |
-|----------|------|-------------|
 | operator | string | Operator to compare values |
-| values | array | Values to compare : except for when operation it's boolean value |
+| values | array | V value |
+
+
 
 operator options: 
 - equal : values should be equal
