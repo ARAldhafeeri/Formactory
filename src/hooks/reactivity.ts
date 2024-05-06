@@ -20,8 +20,9 @@ const useFormReactivity = (settings : FormConfig,  dependencies : any[]) => {
     // when the condition is met
     settings.rules.forEach((rule) => {
       if (evaluateRule(rule.condition)){
-        setFormReactivity(rule.action(formReactivity));
-    });    
+        setFormReactivity(rule.action(formReactivity)):
+      }
+    });
 
 // dependencies that the form will be reactive to
 }, dependencies) 
