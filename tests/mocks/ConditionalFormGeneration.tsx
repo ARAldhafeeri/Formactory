@@ -4,7 +4,7 @@ import { Formactory, evaluateRule, reducerGenerator, useFormMutator, useFormReac
 import { useForm, useFormContext } from 'react-hook-form';
     
 export default function ConditionalFormGeneration(props) {
-  const { appendFild, removeField, fieldExists } = useFormMutator();
+  const { appendField, removeField, fieldExists } = useFormMutator();
   const { register, handleSubmit, formState, watch } = useForm({
     defaultValues: {
       username: "",
@@ -96,7 +96,7 @@ export default function ConditionalFormGeneration(props) {
             }
           };
 
-          return fieldExists(settings, "new") ? settings : appendFild(settings, field);
+          return fieldExists(settings, "new") ? settings : appendField(settings, field);
         }
     },
       {

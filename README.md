@@ -261,7 +261,7 @@ import { useForm, useFormContext } from 'react-hook-form';
 
 export default function ConditionalFormGeneration(props) {
   // get form mutator functions
-  const { appendFild, removeField, fieldExists, swapField, updateInput, replaceField } = useFormMutator();
+  const { appendField, removeField, fieldExists, swapField, updateInput, replaceField } = useFormMutator();
   // get form hook functions
   const { register, handleSubmit, formState, watch } = useForm({
     defaultValues: {
@@ -451,20 +451,45 @@ const  App = () => {
 
 #### `contract.schema`
 
+- list of fields, where each field is an object with the following properties:
 | Property | Type | Description |
 |----------|------|-------------|
-| name | string | Field name , caution : this is unique idenfier for field, not field name property |
+| name | string | Field name |
 | type | string | Field type |
 | props | object | Field element props |
 | label | object | Label element |
 | error | object | optional Error element |
 | children | react node | Custom react elements |
 | component | react component | Custom component |
-| rules | object | Form rules for dynamic forms |
-| rules.on | string | Form action |
-| rules.condition | object | Form condition |
-| rules.condition.operator | string | Form condition operator |
-| rules.condition.values | array or single value with when operator | Form condition values |
+
+caution : name, type are field for formactory. Add name, type to field.props
+
+#### `contract.rules`
+
+- list of rules, where each rule is an object with the following properties:
+| Property | Type | Description |
+|----------|------|-------------|
+| on | string | Form action |
+| condition | object | Condition to trigger the handler |
+| action | function | Handler function |
+
+Note : the handler function should pass the form settings and return the updated form settings when condition is meet.
+Note : condition is an object with the following properties:
+| Property | Type | Description |
+|----------|------|-------------|
+| operator | string | Operator to compare values |
+| values | array | Values to compare : except for when operation it's boolean value |
+
+operator options: 
+- equal : values should be equal
+- notEqual : values should not be equal
+- greaterThan : value a should be greater than value b
+- lessThan : value a should be less than value b
+- greaterThanOrEqual : value a should be greater than or equal to value b
+- lessThanOrEqual : value a should be less than or equal to value b
+- when : a js expression that evaluates to true, or a value.
+
+
 
 
 
