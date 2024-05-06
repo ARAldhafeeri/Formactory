@@ -23,7 +23,7 @@ const useFormReactivity = (settings : FormConfig,  dependencies : any[]) => {
     }
   }, 0);
 
-  }, [dependencies] );
+  }, [] );
 
   // local form state based on the schema
   const [formReactivity, setFormReactivity] = React.useState({...settings});
