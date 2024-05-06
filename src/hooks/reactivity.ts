@@ -13,14 +13,12 @@ const useFormReactivity = (settings : FormConfig,  dependencies : any[]) => {
   // local form state based on the schema
   const [formReactivity, setFormReactivity] = React.useState({...settings});
   
-
-  
   useEffect(() => {
     // evaluate conditional rules and mutate form
     // when the condition is met
     settings.rules.forEach((rule) => {
       if (evaluateRule(rule.condition)){
-        setFormReactivity(rule.action(formReactivity)):
+        setFormReactivity(rule.action(formReactivity));
       }
     });
 
